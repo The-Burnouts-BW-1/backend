@@ -68,12 +68,10 @@ class World:
         direction = 1  # 1: east, -1: west
 
         # While there are rooms to be created...
-        previous_room = None
         while room_count < num_rooms:
 
             # Calculate the direction of the room to be created
             if direction > 0 and x < size_x - 1:
-                room_direction = 'e'  # 1: east
                 x += 1
             else:
                 # When we hit a wall, move up one level and start back at the beginning
@@ -93,9 +91,50 @@ class World:
             #     # direction_list = ['n', 's', 'e', 'w']
             #     # previous_room.connect_rooms(room, random.choice(direction_list))
             #     previous_room.connect_rooms(room, room_direction)
+
             # Update iteration variables
-            previous_room = room
             room_count += 1
+
+        # randomize room connections
+        # for each node in grid
+
+            # randomly generate connections
+            # connection = random.randint(1,4)
+
+            # handle interior rooms
+            # if x=range(1,8) && y=range(1,8) can connect to nodes(x+1 && x-1) && nodes(y+1 && y-1)
+            if x = range(1, 8) & & y = range(1, 8):
+                room.connect_rooms(room,)
+
+            # handle left border rooms except corners
+            # elif x=0 && y=range(1,8) can connect to nodes(x+1) && nodes(y+1 && y-1)
+
+            # handle right border rooms except corners
+            # elif x=9 && y=range(1,8) can connect to nodes(x-1) && nodes(y+1 && y-1)
+
+            # handle bottom border rooms except corners
+            # elif x=range(1,8) && y=0 can connect to nodes(x+1 && x-1) && node(y+1)
+
+            # handle top border rooms except corners
+            # elif x=range(1,8) && y=9 can connect to nodes(x+1 && x-1) && node(y-1)
+
+            # handle bottom left corner
+            # elif x=0 && y=0 can connect to node(x+1) && node(y+1)
+
+            # handle bottom right corner
+            # elif x=9 && y=0 can connect to node(x+1) && node(y+1)
+
+            # handle top left corner
+            # elif x=0 && y=9 can connect to node(x+1) && node(y-1)
+
+            # handle top right corner
+            # elif x=9 && y=9 can connect to node(x-1) && node(y-1)
+
+        # get the reverse connection to complete connections
+
+        for row in self.grid:
+            for room in row:
+                print('x:', room.x, ' y:', room.y)
 
     def print_rooms(self):
         '''
