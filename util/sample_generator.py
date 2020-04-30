@@ -85,6 +85,7 @@ class World:
 
             # Save the room in the World grid
             self.grid[y][x] = room
+            # room.save()
 
             # Connect the new room to the previous room
             # if previous_room is not None:
