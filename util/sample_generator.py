@@ -5,6 +5,8 @@
 # procedural generation algorithm and use print_rooms()
 # to see the world.
 
+import random
+
 
 class Room:
     def __init__(self, id, name, description, x, y):
@@ -17,10 +19,12 @@ class Room:
         self.w_to = None
         self.x = x
         self.y = y
+
     def __repr__(self):
         if self.e_to is not None:
             return f"({self.x}, {self.y}) -> ({self.e_to.x}, {self.e_to.y})"
         return f"({self.x}, {self.y})"
+
     def connect_rooms(self, connecting_room, direction):
         '''
         Connect two rooms in the given n/s/e/w direction
@@ -29,6 +33,7 @@ class Room:
         reverse_dir = reverse_dirs[direction]
         setattr(self, f"{direction}_to", connecting_room)
         setattr(connecting_room, f"{reverse_dir}_to", self)
+
     def get_room_in_direction(self, direction):
         '''
         Connect two rooms in the given n/s/e/w direction
@@ -41,6 +46,7 @@ class World:
         self.grid = None
         self.width = 0
         self.height = 0
+
     def generate_rooms(self, size_x, size_y, num_rooms):
         '''
         Fill up the grid, bottom to top, in a zig-zag pattern
@@ -50,51 +56,105 @@ class World:
         self.grid = [None] * size_y
         self.width = size_x
         self.height = size_y
-        for i in range( len(self.grid) ):
+        for i in range(len(self.grid)):
             self.grid[i] = [None] * size_x
 
         # Start from lower-left corner (0,0)
-        x = -1 # (this will become 0 on the first step)
+        x = -1  # (this will become 0 on the first step)
         y = 0
         room_count = 0
 
         # Start generating rooms to the east
         direction = 1  # 1: east, -1: west
 
-
         # While there are rooms to be created...
-        previous_room = None
         while room_count < num_rooms:
 
             # Calculate the direction of the room to be created
             if direction > 0 and x < size_x - 1:
-                room_direction = "e"
                 x += 1
-            elif direction < 0 and x > 0:
-                room_direction = "w"
-                x -= 1
             else:
-                # If we hit a wall, turn north and reverse direction
-                room_direction = "n"
+                # When we hit a wall, move up one level and start back at the beginning
                 y += 1
-                direction *= -1
+                x = 0
 
             # Create a room in the given direction
-            room = Room(room_count, "A Generic Room", "This is a generic room.", x, y)
+            room = Room(room_count, "A Generic Room",
+                        "This is a generic room.", x, y)
             # Note that in Django, you'll need to save the room after you create it
 
             # Save the room in the World grid
             self.grid[y][x] = room
 
             # Connect the new room to the previous room
-            if previous_room is not None:
-                previous_room.connect_rooms(room, room_direction)
+            # if previous_room is not None:
+            #     # direction_list = ['n', 's', 'e', 'w']
+            #     # previous_room.connect_rooms(room, random.choice(direction_list))
+            #     previous_room.connect_rooms(room, room_direction)
 
             # Update iteration variables
-            previous_room = room
             room_count += 1
 
+        # randomize room connections
+        # for each node in grid
+        for row in self.grid:
+            for room in row:
+                print('x:', room.x, ' y:', room.y)
+                # randomly generate connections
+                # connection = random.randint(1,4)
+                direction_list = ['n', 's', 'e', 'w']
+                # connections_list = [1, 2, 3, 4]
+                # num_loops = random.randint(connections_list)
+                # handle interior rooms
+                new_y = room.y
+                new_x = room.x
+                # if connections = 1 choose direction and loop once
+                # if connection = 2 choose direction and loop twice
+                num_loops = 0
+                while num_loops <= 1:
+                    direction = random.choice(direction_list)
+                    if direction == 'n' and room.x <= 9 and room.y < 9:
+                        new_y = room.y + 1
+                        room.connect_rooms(self.grid[new_y][new_x], direction)
+                    elif direction == 's' and room.x <= 9 and room.y > 0:
+                        new_y = room.y - 1
+                        room.connect_rooms(self.grid[new_y][new_x], direction)
+                    elif direction == 'e' and room.x >= 0 and room.x < 9 and room.y >= 0 and room.y < 10:
+                        new_x = room.x + 1
+                        room.connect_rooms(self.grid[new_y][new_x], direction)
+                    elif direction == 'w' and room.x >= 1 and room.x < 10 and room.y >= 0 and room.y < 10:
+                        new_x = room.x - 1
+                        room.connect_rooms(self.grid[new_y][new_x], direction)
 
+                    num_loops += 1
+
+            # handle left border rooms except corners
+            # can connect to nodes(x+1) && nodes(y+1 && y-1)
+            # elif x = 0 and y = range(1, 8):
+            #     room.connect_rooms(room,
+
+            # handle right border rooms except corners
+            # elif x=9 && y=range(1,8) can connect to nodes(x-1) && nodes(y+1 && y-1)
+
+            # handle bottom border rooms except corners
+            # elif x=range(1,8) && y=0 can connect to nodes(x+1 && x-1) && node(y+1)
+
+            # handle top border rooms except corners
+            # elif x=range(1,8) && y=9 can connect to nodes(x+1 && x-1) && node(y-1)
+
+            # handle bottom left corner
+            # elif x=0 && y=0 can connect to node(x+1) && node(y+1)
+
+            # handle bottom right corner
+            # elif x=9 && y=0 can connect to node(x+1) && node(y+1)
+
+            # handle top left corner
+            # elif x=0 && y=9 can connect to node(x+1) && node(y-1)
+
+            # handle top right corner
+            # elif x=9 && y=9 can connect to node(x-1) && node(y-1)
+
+            # get the reverse connection to complete connections
 
     def print_rooms(self):
         '''
@@ -108,7 +168,7 @@ class World:
         # bottom to top.
         #
         # We reverse it so it draws in the right direction.
-        reverse_grid = list(self.grid) # make a copy of the list
+        reverse_grid = list(self.grid)  # make a copy of the list
         reverse_grid.reverse()
         for row in reverse_grid:
             # PRINT NORTH CONNECTION ROW
@@ -152,11 +212,12 @@ class World:
 
 
 w = World()
-num_rooms = 44
-width = 8
-height = 7
+num_rooms = 100
+width = 10
+height = 10
 w.generate_rooms(width, height, num_rooms)
 w.print_rooms()
 
 
-print(f"\n\nWorld\n  height: {height}\n  width: {width},\n  num_rooms: {num_rooms}\n")
+print(
+    f"\n\nWorld\n  height: {height}\n  width: {width},\n  num_rooms: {num_rooms}\n")
