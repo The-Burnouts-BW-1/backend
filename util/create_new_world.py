@@ -47,3 +47,9 @@ def generate_rooms(size_x, size_y, num_rooms):
 	return grid
 
 generate_rooms(10, 10, 100)
+
+players=Player.objects.all()
+for p in players:
+  	room_id = random.randint(0, 99)
+  	p.currentRoom = room_id
+  	p.save()
