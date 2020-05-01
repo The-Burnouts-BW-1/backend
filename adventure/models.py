@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 import uuid
+import random
 
 class Room(models.Model):
     room_id = models.IntegerField(default=0)
@@ -54,12 +55,11 @@ class Room(models.Model):
 
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    currentRoom = models.IntegerField(default=0)
+    currentRoom = models.IntegerField(default=random.randint(0, 99))
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     def initialize(self):
-        if self.currentRoom == 0:
-            self.currentRoom = Room.objects.first().id
-            self.save()
+        self.currentRoom = Room.objects.first().id
+        self.save()
     def room(self):
         try:
             return Room.objects.get(id=self.currentRoom)

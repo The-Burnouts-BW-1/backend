@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from adventure.models import Player, Room
-# from .sample_generator import *
 import random
 def generate_rooms(size_x, size_y, num_rooms):
 	grid = [None] * size_y
